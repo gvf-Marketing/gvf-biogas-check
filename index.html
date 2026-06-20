@@ -388,10 +388,54 @@ function render(){
       '<div class="frow" style="margin-top:8px"><button class="ghost" id="backBtn">&larr; Zur&uuml;ck</button><button class="btn" id="sendBtn">Check anfordern</button></div>'+
       '<p class="dsgvo">Ihre Angaben behandeln wir vertraulich nach DSGVO. Mit dem Absenden stimmen Sie der Kontaktaufnahme zu.</p>';
     document.getElementById('backBtn').onclick=()=>{cur--;render();};
-    document.getElementById('sendBtn').onclick=()=>{
-      // TODO: Hier werden die Lead-Daten aktuell NICHT verschickt - siehe Hinweis vom Entwickler
-      document.getElementById('quizCard').innerHTML='<div class="thanks"><div class="check"></div><h3>Vielen Dank!</h3><p>Wir haben Ihre Anfrage erhalten und melden uns innerhalb von 24 Stunden bei Ihnen.</p></div>';
-      document.getElementById('check').scrollIntoView({behavior:'smooth',block:'start'});
+    document.getElementById('sendBtn').onclick=async ()=>{
+      // === Supabase-Konfiguration ===
+      const SUPABASE_URL = 'https://bxvtwrkjjhqzlmmuzsqu.supabase.co';
+      const SUPABASE_KEY = 'DEIN_PUBLISHABLE_KEY_HIER_EINSETZEN'; // sb_publishable_...
+
+      // Antworten lesbar aufbereiten (Frage -> gewählte Antwort)
+      const antwortenLesbar = {};
+      steps.forEach((s,i)=>{
+        antwortenLesbar[s.q.replace(/&auml;/g,'ä').replace(/&uuml;/g,'ü').replace(/&ouml;/g,'ö')] =
+          (answers[i]!==undefined) ? s.opts[answers[i]].replace(/&auml;/g,'ä').replace(/&uuml;/g,'ü').replace(/&ouml;/g,'ö') : null;
+      });
+
+      const lead = {
+        name:    document.getElementById('f_name').value.trim(),
+        betrieb: document.getElementById('f_comp').value.trim(),
+        telefon: document.getElementById('f_tel').value.trim(),
+        plz:     document.getElementById('f_plz').value.trim(),
+        email:   document.getElementById('f_mail').value.trim(),
+        antworten: antwortenLesbar
+      };
+
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Wird gesendet…';
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/leads', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(lead)
+        });
+
+        if(!res.ok){ throw new Error('Status '+res.status); }
+
+        document.getElementById('quizCard').innerHTML='<div class="thanks"><div class="check"></div><h3>Vielen Dank!</h3><p>Wir haben Ihre Anfrage erhalten und melden uns innerhalb von 24 Stunden bei Ihnen.</p></div>';
+        document.getElementById('check').scrollIntoView({behavior:'smooth',block:'start'});
+
+      } catch(err){
+        btn.disabled = false;
+        btn.textContent = 'Check anfordern';
+        alert('Es gab ein Problem beim Senden. Bitte versuchen Sie es erneut oder rufen Sie uns telefonisch an.');
+        console.error('Lead-Versand fehlgeschlagen:', err);
+      }
     };
   }
 }
