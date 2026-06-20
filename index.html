@@ -347,7 +347,7 @@ const steps=[
  {q:"Wie hoch ist die installierte Leistung?",opts:["bis 250 kW","250&ndash;500 kW","500 kW &ndash; 1 MW","&uuml;ber 1 MW"]},
  {q:"Ist eine Betriebsunterbrechung / Ertragsausfall mitversichert?",opts:["Ja","Nein","Wei&szlig; nicht"]},
  {q:"Wie alt ist Ihre aktuelle Police?",opts:["unter 1 Jahr","1&ndash;3 Jahre","3&ndash;5 Jahre","&auml;lter / unbekannt"]},
- {q:"Was ist Ihnen am wichtigsten?",opts:["Schutz vor Ertragsausfall","Niedrigerer Beitrag","Umfassende Allgefahren-Deckung","Ehrliche Einsch&auml;tzung"]}
+ {q:"Was ist Ihnen am wichtigsten?",opts:["Schutz vor Ertragsausfall","Niedrigerer Beitrag","Umfassende Allgefahren-Deckung"]}
 ];
 let cur=0; const answers={};
 const body=document.getElementById('quizBody');
@@ -391,7 +391,7 @@ function render(){
     document.getElementById('sendBtn').onclick=async ()=>{
       // === Supabase-Konfiguration ===
       const SUPABASE_URL = 'https://bxvtwrkjjhqzlmmuzsqu.supabase.co';
-      const SUPABASE_KEY = 'DEIN_PUBLISHABLE_KEY_HIER_EINSETZEN'; // sb_publishable_...
+      const SUPABASE_KEY = 'sb_publishable_y2sx0lSfStJkGtNzL_pSqw_a1PC322f';
 
       // Antworten lesbar aufbereiten (Frage -> gewählte Antwort)
       const antwortenLesbar = {};
