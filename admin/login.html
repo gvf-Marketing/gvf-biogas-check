@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lead-Verwaltung | gvf VersicherungsMakler AG</title>
+<style>
+  :root{
+    --gvf:#006f5d; --gvf-dark:#005347; --gvf-deep:#04362f;
+    --sand:#f7f5f0; --fresh:#7bbf3f; --ink:#1a2421; --muted:#5c6b66;
+    --gold:#c8842a; --gold-light:#f0c478;
+    --line:#e3e0d8; --white:#fff;
+    --shadow:0 6px 28px rgba(4,54,47,.10);
+    --shadow-lg:0 18px 50px rgba(4,54,47,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);background:var(--sand);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{line-height:1.15;letter-spacing:-.01em;font-weight:800}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+
+  /* Header */
+  header{background:var(--gvf-deep);color:#fff;padding:20px 0}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;flex-direction:column}
+  .brand .eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-light);font-weight:700}
+  .brand h1{font-size:1.35rem;color:#fff}
+  .userbox{display:flex;align-items:center;gap:14px;font-size:.9rem;color:rgba(255,255,255,.85)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;background:var(--gvf);color:#fff;border:none;font-size:.95rem;font-weight:700;padding:11px 22px;border-radius:10px;cursor:pointer;transition:transform .15s,background .15s}
+  .btn:hover{background:var(--gvf-dark);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;padding:9px 18px}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+  /* Login */
+  .login-screen{min-height:calc(100vh - 78px);display:flex;align-items:center;justify-content:center;padding:40px 24px}
+  .login-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-lg);padding:40px;width:100%;max-width:420px}
+  .login-card h2{font-size:1.5rem;margin-bottom:6px}
+  .login-card .sub{color:var(--muted);font-size:.95rem;margin-bottom:28px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:.82rem;font-weight:700;color:var(--gvf-dark);margin-bottom:7px;letter-spacing:.02em}
+  .field input{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;transition:border-color .15s}
+  .field input:focus{outline:none;border-color:var(--gvf)}
+  .login-card .btn{width:100%;padding:14px;font-size:1.02rem;margin-top:4px}
+  .err{background:#fdecec;color:#b3261e;border:1px solid #f5c2c0;border-radius:9px;padding:11px 14px;font-size:.88rem;margin-bottom:18px;display:none}
+  .err.show{display:block}
+
+  /* Dashboard */
+  .dash{padding:36px 0 80px;display:none}
+  .dash.show{display:block}
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .toolbar h2{font-size:1.55rem}
+  .toolbar .count{color:var(--muted);font-size:.95rem;font-weight:600}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .search{padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:.95rem;font-family:inherit;min-width:230px}
+  .search:focus{outline:none;border-color:var(--gvf)}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead th{background:var(--gvf-deep);color:#fff;text-align:left;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:14px 18px}
+  tbody td{padding:15px 18px;border-bottom:1px solid var(--line);font-size:.93rem;vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.lead-row{cursor:pointer;transition:background .12s}
+  tbody tr.lead-row:hover{background:#f4f7f4}
+  .nm{font-weight:700}
+  .muted-cell{color:var(--muted)}
+  a.contact{color:var(--gvf);text-decoration:none;font-weight:600}
+  a.contact:hover{text-decoration:underline}
+  .chev{display:inline-block;transition:transform .2s;color:var(--muted);font-size:.8rem}
+  tr.open .chev{transform:rotate(90deg)}
+
+  .detail-row td{background:#faf9f5;padding:0}
+  .detail-inner{padding:6px 18px 20px;max-width:760px}
+  .detail-inner h4{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gvf-dark);margin:14px 0 10px}
+  .qa{display:grid;grid-template-columns:1fr;gap:8px}
+  .qa-item{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 13px}
+  .qa-q{font-size:.78rem;color:var(--muted);margin-bottom:2px}
+  .qa-a{font-weight:700;font-size:.92rem}
+  .no-answers{color:var(--muted);font-style:italic;font-size:.9rem}
+
+  .state{padding:60px 24px;text-align:center;color:var(--muted)}
+  .state.err-state{color:#b3261e}
+  .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--gvf);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media (max-width:640px){
+    thead th:nth-child(3),thead th:nth-child(4),tbody td:nth-child(3),tbody td:nth-child(4){display:none}
+    .brand h1{font-size:1.1rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hrow">
+    <div class="brand">
+      <span class="eyebrow">gvf VersicherungsMakler AG</span>
+      <h1>Lead-Verwaltung</h1>
+    </div>
+    <div class="userbox" id="userbox" style="display:none">
+      <span id="userEmail"></span>
+      <button class="btn btn-ghost" id="logoutBtn">Abmelden</button>
+    </div>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>Anmelden</h2>
+    <p class="sub">Bitte melden Sie sich an, um die eingegangenen Leads einzusehen.</p>
+    <div class="err" id="loginErr"></div>
+    <div class="field">
+      <label for="email">E-Mail</label>
+      <input id="email" type="email" autocomplete="username" placeholder="name@gvf.de">
+    </div>
+    <div class="field">
+      <label for="pw">Passwort</label>
+      <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <button class="btn" id="loginBtn">Anmelden</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dash">
+  <div class="wrap">
+    <div class="toolbar">
+      <div>
+        <h2>Eingegangene Leads</h2>
+        <span class="count" id="count"></span>
+      </div>
+      <div class="controls">
+        <input class="search" id="search" type="search" placeholder="Suchen (Name, Betrieb, PLZ …)">
+        <button class="btn" id="refresh">Aktualisieren</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div id="tableState" class="state">
+        <div class="spinner"></div>
+        Leads werden geladen …
+      </div>
+      <table id="table" style="display:none">
+        <thead>
+          <tr>
+            <th style="width:30px"></th>
+            <th>Name</th>
+            <th>Betrieb</th>
+            <th>Telefon</th>
+            <th>E-Mail</th>
+            <th>Eingegangen</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://bxvtwrkjjhqzlmmuzsqu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_y2sx0lSfStJkGtNzL_pSqw_a1PC322f';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const loginScreen = document.getElementById('loginScreen');
+  const dash = document.getElementById('dash');
+  const userbox = document.getElementById('userbox');
+  const loginErr = document.getElementById('loginErr');
+  let allLeads = [];
+
+  function showError(msg){ loginErr.textContent = msg; loginErr.classList.add('show'); }
+  function clearError(){ loginErr.classList.remove('show'); }
+
+  // --- Auth flow ---
+  async function checkSession(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ enterDash(session.user.email); }
+  }
+
+  document.getElementById('loginBtn').onclick = async ()=>{
+    clearError();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('pw').value;
+    if(!email || !password){ showError('Bitte E-Mail und Passwort eingeben.'); return; }
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Anmelden …';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    btn.disabled = false; btn.textContent = 'Anmelden';
+    if(error){ showError('Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Zugangsdaten.'); return; }
+    enterDash(data.user.email);
+  };
+
+  document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginBtn').click(); });
+
+  document.getElementById('logoutBtn').onclick = async ()=>{
+    await sb.auth.signOut();
+    location.reload();
+  };
+
+  function enterDash(email){
+    loginScreen.style.display = 'none';
+    dash.classList.add('show');
+    userbox.style.display = 'flex';
+    document.getElementById('userEmail').textContent = email;
+    loadLeads();
+  }
+
+  // --- Load leads ---
+  async function loadLeads(){
+    const state = document.getElementById('tableState');
+    const table = document.getElementById('table');
+    table.style.display = 'none';
+    state.className = 'state';
+    state.innerHTML = '<div class="spinner"></div>Leads werden geladen …';
+
+    const { data, error } = await sb
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending:false });
+
+    if(error){
+      state.className = 'state err-state';
+      state.textContent = 'Die Leads konnten nicht geladen werden. Bitte aktualisieren Sie die Seite oder melden Sie sich erneut an.';
+      return;
+    }
+    if(!data || data.length === 0){
+      state.className = 'state';
+      state.textContent = 'Noch keine Leads eingegangen.';
+      return;
+    }
+    allLeads = data;
+    state.style.display = 'none';
+    table.style.display = 'table';
+    render(allLeads);
+  }
+
+  // --- Render table ---
+  function fmtDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function render(leads){
+    const tbody = document.getElementById('tbody');
+    document.getElementById('count').textContent =
+      leads.length + (leads.length === 1 ? ' Lead' : ' Leads');
+    tbody.innerHTML = '';
+
+    leads.forEach((lead, i)=>{
+      const tr = document.createElement('tr');
+      tr.className = 'lead-row';
+      tr.innerHTML =
+        '<td><span class="chev">&#9656;</span></td>' +
+        '<td class="nm">'+esc(lead.name)+'</td>' +
+        '<td>'+esc(lead.betrieb)+'</td>' +
+        '<td>'+(lead.telefon ? '<a class="contact" href="tel:'+esc(lead.telefon)+'">'+esc(lead.telefon)+'</a>' : '<span class="muted-cell">&ndash;</span>')+'</td>' +
+        '<td>'+(lead.email ? '<a class="contact" href="mailto:'+esc(lead.email)+'">'+esc(lead.email)+'</a>' : '<span class="muted-cell">&ndash;</span>')+'</td>' +
+        '<td class="muted-cell">'+fmtDate(lead.created_at)+'</td>';
+
+      const detail = document.createElement('tr');
+      detail.className = 'detail-row';
+      detail.style.display = 'none';
+      detail.innerHTML = '<td colspan="6"><div class="detail-inner">'+answersHtml(lead)+'</div></td>';
+
+      tr.onclick = ()=>{
+        const open = detail.style.display !== 'none';
+        detail.style.display = open ? 'none' : 'table-row';
+        tr.classList.toggle('open', !open);
+      };
+
+      tbody.appendChild(tr);
+      tbody.appendChild(detail);
+    });
+  }
+
+  function answersHtml(lead){
+    let html = '<h4>Kontaktdaten</h4><div class="qa">';
+    html += '<div class="qa-item"><div class="qa-q">PLZ</div><div class="qa-a">'+(esc(lead.plz)||'&ndash;')+'</div></div>';
+    html += '</div>';
+
+    const a = lead.antworten;
+    html += '<h4>Quiz-Antworten</h4>';
+    if(a && typeof a === 'object' && Object.keys(a).length){
+      html += '<div class="qa">';
+      for(const [q, ans] of Object.entries(a)){
+        html += '<div class="qa-item"><div class="qa-q">'+esc(q)+'</div><div class="qa-a">'+(ans!=null?esc(String(ans)):'<span class="no-answers">keine Angabe</span>')+'</div></div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<p class="no-answers">Keine Antworten gespeichert.</p>';
+    }
+    return html;
+  }
+
+  function esc(v){
+    if(v==null) return '';
+    return String(v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // --- Search & refresh ---
+  document.getElementById('search').addEventListener('input', e=>{
+    const q = e.target.value.toLowerCase().trim();
+    if(!q){ render(allLeads); return; }
+    const filtered = allLeads.filter(l=>{
+      const hay = [l.name, l.betrieb, l.telefon, l.plz, l.email, JSON.stringify(l.antworten||'')]
+        .join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+    render(filtered);
+  });
+
+  document.getElementById('refresh').onclick = loadLeads;
+
+  checkSession();
+</script>
+</body>
+</html>
